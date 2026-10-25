@@ -1,0 +1,27 @@
+# Dependencies and environments
+node_modules/
+.venv/
+
+# Build output
+dist/
+
+# Model weights and reference material — not part of the package.
+# models/: 1.25GB source weights + 2.4GB fp32 export + int8 build.
+models/
+# research/: reference material, not part of the package.
+research/
+# tests/fixtures/models/: staged model files (~910MB), exceeding GitHub's
+# 100MB per-file limit. The real-inference test skips gracefully when they
+# are absent; see README.md for how to obtain them.
+tests/fixtures/models/
+
+# Small committed fixtures — explicitly NOT ignored:
+!tests/fixtures/bcn_weather.mp3
+!tests/fixtures/vocab.txt
+
+# Scratch and OS files
+.tmp/
+*.log
+.DS_Store
+__pycache__/
+*.pyc
