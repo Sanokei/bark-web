@@ -6,6 +6,7 @@
  */
 
 import type { BarkModelConfig } from './types.js';
+export { barkReadiness, preflightBarkAssets, BARK_RUNTIME_STATUS } from './readiness.js';
 
 export { BarkTranscriber } from './bark.js';
 export type {
