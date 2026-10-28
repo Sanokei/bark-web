@@ -17,7 +17,8 @@
  *   building a product on it.
  */
 
-import { ParakeetModel } from 'parakeet.js';
+import type { ParakeetModel } from 'parakeet.js';
+import { barkReadiness } from './readiness.js';
 import type {
   BarkExecutionProvider,
   BarkLoadOptions,
@@ -110,6 +111,9 @@ export class BarkTranscriber {
     this.model = model;
   }
 
+  /** True only after the real model loader resolves; false after dispose(). */
+  get ready(): boolean { return !this.disposed; }
+
   /**
    * Load Bark from remote asset URLs via parakeet.js.
    *
@@ -126,12 +130,15 @@ export class BarkTranscriber {
     },
     options?: Pick<BarkLoadOptions, 'executionProviders' | 'onProgress' | 'wasmPaths'>,
   ): Promise<BarkTranscriber> {
-    if (!urls.encoderUrl || !urls.decoderUrl || !urls.tokenizerUrl) {
+    if (!barkReadiness(urls).canAttemptLoad) {
       throw new Error(
         'BarkTranscriber.fromUrls requires encoderUrl, decoderUrl and tokenizerUrl.',
       );
     }
     options?.onProgress?.(0, 1, 'loading');
+    // Importing the facade/readiness API is cheap. Only an explicit model load
+    // initializes the heavy runtime; downloading ~838 MB is never implicit.
+    const { ParakeetModel } = await import('parakeet.js');
     // Pre-set the WASM binary location on the shared onnxruntime-web
     // instance BEFORE parakeet.js runs initOrt: initOrt accepts a wasmPaths
     // parameter but never assigns it — its only assignment is the jsDelivr
